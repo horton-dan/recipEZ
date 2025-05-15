@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: test123
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD_FILE: /run/secrets/postgres_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # secrets:
+    #   - postgres_pass
+# secrets:
+#    postgres_pass:
+#      file: ./postgres_pass.txt
+volumes:
+  pgdata:
