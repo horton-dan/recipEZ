@@ -1,4 +1,4 @@
-from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 class Ingredient(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -6,21 +6,39 @@ class Ingredient(SQLModel, table=True):
 
 postgres_url = "postgresql://postgres:test123@localhost:5432/recipez"
 
-engine = create_engine(postgres_url, echo=True)
+engine = create_engine(postgres_url, echo=False)
 
 def create_db_tables():
     SQLModel.metadata.create_all(engine)
 
-def create_ingredients():
-    ingredient_1 = Ingredient(id=1, ingredient_name="chicken")
-    #using the 'with' block means you do not have to mannually use session.close() to close out lingering resources. It handles it for you even if the code breaks during the block.
-    with Session(engine) as session:
-        session.add(ingredient_1)
-        session.commit()
-        # session.close()
-def main():
-    create_db_tables()
-    create_ingredients()
+def add_ingredients():
+    print("Enter ingredients (one per line). Press Enter twice to finish:")
+    ingredients = []
+    while True:
+        ingredient_name_input = input("> ").strip()
+        if not ingredient_name_input:  # If user enters empty line
+            break
+        ingredients.append(Ingredient(ingredient_name=ingredient_name_input))
+    
+    if ingredients:  # Only proceed if there are ingredients to add
+        with Session(engine) as session:
+            session.add_all(ingredients)
+            session.commit()
+            print(f"Added {len(ingredients)} ingredients successfully!")
+    else:
+        print("No ingredients were added.")
+
+def create_meal():
+    test 
+
+# def delete_all_ingredients():
+#     with Session(engine) as session:
+#         all_ingredients = session.exec(select(Ingredient)).all()
+#         print(all_ingredients)
+#         session.delete(all_ingredients)
+#         session.commit()
+    
 
 if __name__ == "__main__":
-    main()
+    add_ingredients()    
+    # create_db_tables()
