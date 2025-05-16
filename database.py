@@ -1,8 +1,14 @@
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy import JSON
 
 class Ingredient(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     ingredient_name: str
+
+class Meal(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    meal_name: str
+    ingredients: dict = Field(sa_type=JSON)
 
 postgres_url = "postgresql://postgres:test123@localhost:5432/recipez"
 
@@ -29,7 +35,11 @@ def add_ingredients():
         print("No ingredients were added.")
 
 def create_meal():
-    test 
+    with Session(engine) as session:
+        ingredients = session.exec(select(Ingredient)).all()
+        print(ingredients)
+
+
 
 # def delete_all_ingredients():
 #     with Session(engine) as session:
@@ -40,5 +50,6 @@ def create_meal():
     
 
 if __name__ == "__main__":
-    add_ingredients()    
+    # add_ingredients()
+    create_meal()    
     # create_db_tables()
