@@ -35,9 +35,30 @@ def add_ingredients():
         print("No ingredients were added.")
 
 def create_meal():
-    with Session(engine) as session:
-        ingredients = session.exec(select(Ingredient)).all()
-        print(ingredients)
+    meal_ingredients = {}
+    ingredient_counter = 1
+    meal_name_input = input("Please enter a name for the meal: ").strip()
+    #Add ingredients that make a meal
+    while True:
+        meal_ingredient_input = input("> ").strip()
+        if not meal_ingredient_input:
+            break
+        meal_ingredients[ingredient_counter] = meal_ingredient_input
+        ingredient_counter += 1
+
+    if meal_ingredients:  # Only proceed if there are ingredients to add
+        with Session(engine) as session:
+            session.add(Meal(meal_name=meal_name_input,ingredients=meal_ingredients))
+            session.commit()
+            print(f"Added successfully!")
+    else:
+        print("No meal was added.")
+
+
+
+    # with Session(engine) as session:
+    #     ingredients = session.exec(select(Ingredient)).all()
+    #     print(ingredients)
 
 
 
