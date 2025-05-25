@@ -1,13 +1,13 @@
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlalchemy import JSON
 
+
 class Ingredient(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     ingredient_name: str
 
 class Meal(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    meal_name: str
     ingredients: dict = Field(sa_type=JSON)
 
 postgres_url = "postgresql://postgres:test123@localhost:5432/recipez"
@@ -34,21 +34,25 @@ def add_ingredients():
     else:
         print("No ingredients were added.")
 
-def create_meal():
-    meal_ingredients = {}
-    ingredient_counter = 1
+def create_meal():    
+    meal_ingredients = []
     meal_name_input = input("Please enter a name for the meal: ").strip()
     #Add ingredients that make a meal
     while True:
         meal_ingredient_input = input("> ").strip()
         if not meal_ingredient_input:
             break
-        meal_ingredients[ingredient_counter] = meal_ingredient_input
-        ingredient_counter += 1
+        meal_ingredients.append(meal_ingredient_input)
+    
+    meal_dict = {"name" : meal_name_input,
+               "ingredients" : meal_ingredients
+               }
+    
+    
 
     if meal_ingredients:  # Only proceed if there are ingredients to add
         with Session(engine) as session:
-            session.add(Meal(meal_name=meal_name_input,ingredients=meal_ingredients))
+            session.add(Meal(ingredients=meal_dict))
             session.commit()
             print(f"Added successfully!")
     else:
@@ -56,21 +60,7 @@ def create_meal():
 
 
 
-    # with Session(engine) as session:
-    #     ingredients = session.exec(select(Ingredient)).all()
-    #     print(ingredients)
-
-
-
-# def delete_all_ingredients():
-#     with Session(engine) as session:
-#         all_ingredients = session.exec(select(Ingredient)).all()
-#         print(all_ingredients)
-#         session.delete(all_ingredients)
-#         session.commit()
-    
-
 if __name__ == "__main__":
-    # add_ingredients()
+    add_ingredients()
     create_meal()    
-    # create_db_tables()
+    create_db_tables()
