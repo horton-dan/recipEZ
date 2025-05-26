@@ -42,13 +42,16 @@ def create_meal():
         meal_ingredient_input = input("> ").strip()
         if not meal_ingredient_input:
             break
-        meal_ingredients.append(meal_ingredient_input)
-    
+        with Session(engine) as session:
+            ingredient_check = session.exec(select(Ingredient).where(Ingredient.ingredient_name == meal_ingredient_input)).first()
+            if ingredient_check:
+                meal_ingredients.append(meal_ingredient_input)
+            else:
+                print("Ingredient does not exist.")        
+
     meal_dict = {"name" : meal_name_input,
                "ingredients" : meal_ingredients
                }
-    
-    
 
     if meal_ingredients:  # Only proceed if there are ingredients to add
         with Session(engine) as session:
@@ -58,9 +61,18 @@ def create_meal():
     else:
         print("No meal was added.")
 
-
-
+def select_testing():
+    with Session(engine) as session:
+        show_ingredients = session.exec(select(Ingredient).where(Ingredient.ingredient_name == "Brats")).first()
+        #This is how you show the results to console
+        # for ingredients in show_ingredients:
+        #     print(ingredients)
+        if show_ingredients:
+            print("Exists")
+        else:
+            print("Does not exist")
 if __name__ == "__main__":
-    add_ingredients()
+    # add_ingredients()
     create_meal()    
-    create_db_tables()
+    # create_db_tables()
+    # select_testing()
