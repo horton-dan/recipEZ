@@ -8,6 +8,6 @@ wheels/
 .venv
 dockercompose.yaml
 .env 
-.KaggleRecipes
+KaggleRecipes
 credentials.json
 token.json
