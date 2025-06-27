@@ -1,6 +1,11 @@
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlalchemy import JSON
+import pandas as pd
+import ast
+import os.path
+from dotenv import load_dotenv
 
+load_dotenv
 
 class Ingredient(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -8,9 +13,10 @@ class Ingredient(SQLModel, table=True):
 
 class Meal(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    name: str
     ingredients: dict = Field(sa_type=JSON)
 
-postgres_url = "postgresql://postgres:test123@localhost:5432/recipez"
+postgres_url = os.getenv('postgres_url')
 
 engine = create_engine(postgres_url, echo=False)
 
@@ -33,6 +39,23 @@ def add_ingredients():
             print(f"Added {len(ingredients)} ingredients successfully!")
     else:
         print("No ingredients were added.")
+def ingredientCSV_database():
+
+    # Load the CSV file
+    df = pd.read_csv('KaggleRecipes/RAW_recipes.csv')
+
+    # Isolate just the ingredients column
+    ingredients = df['ingredients']
+
+    for ingredient_list_row in range(len(ingredients)):
+        ingredient_string = df.loc[ingredient_list_row, 'ingredients']
+        #Convert to a Python literal String
+        ingredient_list = ast.literal_eval(ingredient_string)
+        for individual_ingredient in ingredient_list:
+            with Session(engine) as session:
+                session.add(Ingredient(ingredient_name=individual_ingredient))
+                session.commit()
+            
 
 def create_meal():    
     meal_ingredients = []
@@ -49,13 +72,11 @@ def create_meal():
             else:
                 print("Ingredient does not exist.")        
 
-    meal_dict = {"name" : meal_name_input,
-               "ingredients" : meal_ingredients
-               }
+    ingredient_dict = {"ingredients" : meal_ingredients}
 
     if meal_ingredients:  # Only proceed if there are ingredients to add
         with Session(engine) as session:
-            session.add(Meal(ingredients=meal_dict))
+            session.add(Meal(name=meal_name_input,ingredients=ingredient_dict))
             session.commit()
             print(f"Added successfully!")
     else:
@@ -76,3 +97,4 @@ if __name__ == "__main__":
     create_meal()    
     # create_db_tables()
     # select_testing()
+    # ingredientCSV_database()
